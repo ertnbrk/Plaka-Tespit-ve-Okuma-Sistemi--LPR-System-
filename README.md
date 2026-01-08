@@ -2,7 +2,11 @@
 
 Yapay zeka destekli, yüksek performanslı (**%98+ doğruluk**) otomatik plaka tanıma ve araç bilgi sorgulama sistemi.
 
-![Project Banner](https://via.placeholder.com/1200x400?text=AI+License+Plate+Recognition+System)
+
+
+https://github.com/user-attachments/assets/053ec579-a71b-4fb3-bc86-265ce7b9e16b
+
+
 
 ## 🌟 Proje Hakkında
 
