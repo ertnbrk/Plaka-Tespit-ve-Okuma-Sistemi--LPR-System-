@@ -19,6 +19,4 @@ npm-debug.log*
 Thumbs.db
 
 # Project Specific
-models/
-performance_results/
 backend/__pycache__
