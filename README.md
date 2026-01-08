@@ -4,7 +4,7 @@ Yapay zeka destekli, yüksek performanslı (**%98+ doğruluk**) otomatik plaka t
 
 
 
-https://github.com/user-attachments/assets/053ec579-a71b-4fb3-bc86-265ce7b9e16b
+![Recording2026-01-08211408-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ca3483b2-9cff-4ce2-a34c-30b1f037e288)
 
 
 
