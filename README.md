@@ -30,6 +30,9 @@ Proje, **YOLOv8 Large** modeli kullanılarak eğitilmiştir. Özel ve Kaggle ver
 | **mAP@50-95** | **%72.00** | Kutu hassasiyeti (Perfect bounding box) |
 | **Recall** | **%96.73** | Plakaları gözden kaçırmama oranı |
 
+<img width="2400" height="1200" alt="results" src="https://github.com/user-attachments/assets/a8bc074d-f0a4-4d41-bece-f8b426cd4e1c" />
+
+
 > **Not:** Model, karlı, çamurlu ve açılı plakalarda bile yüksek başarı göstermektedir.
 
 ## 🛠️ Teknolojiler
