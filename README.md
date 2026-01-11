@@ -3,8 +3,7 @@
 Yapay zeka destekli, yüksek performanslı (**%98+ doğruluk**) otomatik plaka tanıma ve araç bilgi sorgulama sistemi.
 
 
-
-![Recording2026-01-08211408-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ca3483b2-9cff-4ce2-a34c-30b1f037e288)
+![test-ezgif com-video-to-gif-converter (1)](https://github.com/user-attachments/assets/6414f9cc-ae1d-4640-ac8b-25d21d83618b)
 
 
 
