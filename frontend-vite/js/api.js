@@ -4,6 +4,7 @@ class ApiService {
     async request(endpoint, options = {}) {
         const token = localStorage.getItem('token');
         const headers = {
+            'Content-Type': 'application/json',
             ...options.headers
         };
 
@@ -16,19 +17,25 @@ class ApiService {
             headers
         };
 
+        // Don't set Content-Type for FormData (browser sets it with boundary)
+        if (options.body instanceof FormData) {
+            delete headers['Content-Type'];
+        }
+
         try {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-            
+
             if (response.status === 401) {
                 // Unauthorized - redirect to login
-                window.location.href = '/pages/login.html';
+                console.warn('Unauthorized access, redirecting to login...');
+                this.logout();
                 return;
             }
 
             const data = await response.json();
-            
+
             if (!response.ok) {
-                throw new Error(data.message || data.error || 'API Request Failed');
+                throw new Error(data.detail || data.message || data.error || 'API Request Failed');
             }
 
             return data;
@@ -39,53 +46,34 @@ class ApiService {
         }
     }
 
-    // Auth
+    // --- Authentication ---
+
     async login(email, password) {
-        // Mocking auth logic
         try {
-            // Demo User Credentials
-            const demoUser = { email: 'demo@plaka.gov.tr', password: '123', name: 'Demo Memur', role: 'officer' };
-            const adminUser = { email: 'admin@plaka.gov.tr', password: '123', name: 'Sistem Yöneticisi', role: 'admin' };
-            
-            // Check for locally registered user (mock database)
-            const storedUser = JSON.parse(localStorage.getItem('registered_user'));
+            const data = await this.request('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            });
 
-            // 1. Check Demo User
-            if (email === demoUser.email && password === demoUser.password) {
-                localStorage.setItem('user', JSON.stringify({ email: demoUser.email, name: demoUser.name, role: demoUser.role }));
-                localStorage.setItem('token', 'mock-jwt-demo-' + Date.now());
-                return { success: true, role: demoUser.role };
-            }
+            // Backend returns: { token: "...", user: { ... } }
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
 
-            // 2. Check Admin User
-            if (email === adminUser.email && password === adminUser.password) {
-                localStorage.setItem('user', JSON.stringify({ email: adminUser.email, name: adminUser.name, role: adminUser.role }));
-                localStorage.setItem('token', 'mock-jwt-admin-' + Date.now());
-                return { success: true, role: adminUser.role };
-            }
-
-            // 3. Check Registered User
-            if (storedUser && email === storedUser.email && password === storedUser.password) {
-                localStorage.setItem('user', JSON.stringify({ email: storedUser.email, name: storedUser.name, role: 'officer' }));
-                localStorage.setItem('token', 'mock-jwt-stored-' + Date.now());
-                return { success: true, role: 'officer' };
-            }
-            
-            throw new Error('Hatalı e-posta veya parola!');
-        } catch (e) {
-            throw e;
+            return { success: true, role: data.user.role, user: data.user };
+        } catch (error) {
+            throw error;
         }
     }
 
-    async register(name, email, password) {
-        // Mock register - save to "database" so login works later
-        const newUser = { name, email, password };
-        localStorage.setItem('registered_user', JSON.stringify(newUser));
+    async register(name, email, password, role = 'officer') {
+        return this.request('/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({ name, email, password, role })
+        });
+    }
 
-        // Auto login
-        localStorage.setItem('user', JSON.stringify({ email, name }));
-        localStorage.setItem('token', 'mock-jwt-token-' + Date.now());
-        return { success: true };
+    async getProfile() {
+        return this.request('/auth/me');
     }
 
     logout() {
@@ -94,75 +82,63 @@ class ApiService {
         window.location.href = '/pages/login.html';
     }
 
-    // Detection
+    // --- Complaints ---
+
+    async getComplaints(skip = 0, limit = 100) {
+        // Backend handles filtering by role automatically
+        return this.request(`/complaints/?skip=${skip}&limit=${limit}`);
+    }
+
+    async getComplaint(id) {
+        return this.request(`/complaints/${id}`);
+    }
+
+    async saveComplaint(complaintData) {
+        // complaintData should match backend schema: 
+        // { plate, description, date, location, city, district, neighborhood, address_detail }
+        return this.request('/complaints/', {
+            method: 'POST',
+            body: JSON.stringify(complaintData)
+        });
+    }
+
+    async updateComplaint(id, status, admin_note) {
+        // Only admins can do this
+        return this.request(`/complaints/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ status, admin_note })
+        });
+    }
+
+    // --- Detection & Analysis ---
+
     async detectImage(file) {
         const formData = new FormData();
         formData.append('file', file);
-        
-        // Using raw fetch to avoid content-type issues with FormData
-        const response = await fetch(`${API_BASE_URL}/predict`, {
+
+        // request() handles FormData content-type automatically
+        return this.request('/predict', {
             method: 'POST',
             body: formData
         });
-        
-        return await response.json();
     }
 
     async detectVideo(file) {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch(`${API_BASE_URL}/predict_video`, {
+        return this.request('/predict_video', {
             method: 'POST',
             body: formData
         });
-
-        return await response.json();
     }
 
-    // Vehicle Query (using existing endpoint)
     async queryVehicle(plate) {
+        // Using backend endpoint that queries mock DB
         return this.request('/api/vehicle/query', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ plate })
+            body: JSON.stringify({ plate, source: 'web_client', timestamp: new Date().toISOString() })
         });
-    }
-
-    // Complaints (Mock implementation as backend likely doesn't have this table)
-    getComplaints() {
-        const complaints = localStorage.getItem('complaints');
-        return complaints ? JSON.parse(complaints) : [];
-    }
-    
-    getComplaint(id) {
-        const complaints = this.getComplaints();
-        return complaints.find(c => c.id.toString() === id.toString());
-    }
-
-    saveComplaint(complaint) {
-        const complaints = this.getComplaints();
-        const newComplaint = {
-            id: Date.now(),
-            date: new Date().toLocaleDateString('tr-TR'),
-            status: 'İnceleniyor',
-            ...complaint
-        };
-        complaints.unshift(newComplaint);
-        localStorage.setItem('complaints', JSON.stringify(complaints));
-        return newComplaint;
-    }
-
-    updateComplaint(id, updatedData) {
-        let complaints = this.getComplaints();
-        const index = complaints.findIndex(c => c.id.toString() === id.toString());
-        
-        if (index !== -1) {
-            complaints[index] = { ...complaints[index], ...updatedData };
-            localStorage.setItem('complaints', JSON.stringify(complaints));
-            return complaints[index];
-        }
-        return null;
     }
 }
 

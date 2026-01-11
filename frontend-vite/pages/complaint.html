@@ -175,73 +175,35 @@
     </script>
     <script src="../js/auth.js"></script>
     <script>
-        // Init Location Data
-        const locationData = window.turkeyLocationData || [];
-        const citySelect = document.getElementById('city');
-        const districtSelect = document.getElementById('district');
-        // Neighborhood is text input now
+        (async () => {
+            // Init Location Data
+            const locationData = window.turkeyLocationData || [];
+            const citySelect = document.getElementById('city');
+            const districtSelect = document.getElementById('district');
+            // Neighborhood is text input now
 
-        // Populate Cities
-        citySelect.innerHTML = '<option value="">İl Seçiniz</option>';
+            // Populate Cities
+            citySelect.innerHTML = '<option value="">İl Seçiniz</option>';
 
-        locationData.forEach(city => {
-            const option = document.createElement('option');
-            option.value = city.name;
-            option.textContent = `${city.id} - ${city.name}`;
-            citySelect.appendChild(option);
-        });
+            locationData.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city.name;
+                option.textContent = `${city.id} - ${city.name}`;
+                citySelect.appendChild(option);
+            });
 
-        // City Change Event
-        citySelect.addEventListener('change', (e) => {
-            const selectedCityName = e.target.value;
+            // City Change Event
+            citySelect.addEventListener('change', (e) => {
+                const selectedCityName = e.target.value;
 
-            // Reset District
-            districtSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
-            districtSelect.disabled = true;
-            districtSelect.classList.add('opacity-50', 'cursor-not-allowed');
+                // Reset District
+                districtSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+                districtSelect.disabled = true;
+                districtSelect.classList.add('opacity-50', 'cursor-not-allowed');
 
-            if (selectedCityName) {
-                const city = locationData.find(c => c.name === selectedCityName);
-                if (city) {
-                    // Fix: Districts are strings in the JSON, not objects
-                    city.districts.forEach(districtName => {
-                        const option = document.createElement('option');
-                        option.value = districtName;
-                        option.textContent = districtName;
-                        districtSelect.appendChild(option);
-                    });
-                    districtSelect.disabled = false;
-                    districtSelect.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }
-        });
-        // Initialize Form Data
-        const plateInput = document.getElementById('plate');
-        const dateInput = document.getElementById('date');
-
-        // Handle Edit Mode
-        const urlParams = new URLSearchParams(window.location.search);
-        const complaintId = urlParams.get('id');
-        let isEditMode = false;
-
-        if (complaintId) {
-            const complaint = window.api.getComplaint(complaintId);
-            if (complaint) {
-                isEditMode = true;
-
-                // Populate Fields
-                plateInput.value = complaint.plate;
-                document.getElementById('description').value = complaint.description || '';
-                document.getElementById('neighborhood').value = complaint.neighborhood || '';
-                document.getElementById('address_detail').value = complaint.address_detail || '';
-
-                // Restore Location State
-                if (complaint.city) {
-                    citySelect.value = complaint.city;
-                    // Trigger district load manually
-                    const city = locationData.find(c => c.name === complaint.city);
+                if (selectedCityName) {
+                    const city = locationData.find(c => c.name === selectedCityName);
                     if (city) {
-                        districtSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
                         city.districts.forEach(districtName => {
                             const option = document.createElement('option');
                             option.value = districtName;
@@ -250,100 +212,142 @@
                         });
                         districtSelect.disabled = false;
                         districtSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            });
 
-                        if (complaint.district) {
-                            districtSelect.value = complaint.district;
+            // Initialize Form Data
+            const plateInput = document.getElementById('plate');
+            const dateInput = document.getElementById('date');
+
+            // Handle Edit/View Mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const complaintId = urlParams.get('id');
+            let isViewMode = false;
+
+            if (complaintId) {
+                try {
+                    const complaint = await window.api.getComplaint(complaintId);
+                    if (complaint) {
+                        isViewMode = true;
+
+                        // Populate Fields
+                        plateInput.value = complaint.plate;
+                        document.getElementById('description').value = complaint.description || '';
+                        document.getElementById('neighborhood').value = complaint.neighborhood || '';
+                        document.getElementById('address_detail').value = complaint.address_detail || '';
+
+                        // Restore Location State
+                        if (complaint.city) {
+                            citySelect.value = complaint.city;
+                            // Trigger district load manually
+                            const city = locationData.find(c => c.name === complaint.city);
+                            if (city) {
+                                districtSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+                                city.districts.forEach(districtName => {
+                                    const option = document.createElement('option');
+                                    option.value = districtName;
+                                    option.textContent = districtName;
+                                    districtSelect.appendChild(option);
+                                });
+                                districtSelect.disabled = false;
+                                districtSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                                if (complaint.district) {
+                                    districtSelect.value = complaint.district;
+                                }
+                            }
+                        }
+
+                        // Make Read-Only
+                        const submitBtn = document.querySelector('button[type="submit"]');
+                        submitBtn.style.display = 'none'; // Hide submit button in view mode
+
+                        Array.from(document.getElementById('complaintForm').elements).forEach(el => el.disabled = true);
+
+                        // Show Status Alert
+                        const statusAlert = document.getElementById('status-alert');
+                        if (statusAlert) {
+                            let alertClass = 'bg-yellow-900/20 text-yellow-200';
+                            let icon = '⏳';
+                            let label = 'Yönetici Notu';
+
+                            if (complaint.status === 'Onaylandı') {
+                                alertClass = 'bg-green-900/20 text-green-200 border-green-700/30';
+                                icon = '✔️';
+                                label = 'Açıklama';
+                            } else if (complaint.status === 'Reddedildi') {
+                                alertClass = 'bg-red-900/20 text-red-200 border-red-700/30';
+                                icon = '❌';
+                                label = 'Red Gerekçesi';
+                            }
+
+                            statusAlert.className = `px-6 py-4 border-b border-[#1E3A5F] ${alertClass} flex items-start space-x-3`;
+                            statusAlert.innerHTML = `
+                                <div class="text-2xl">${icon}</div>
+                                <div>
+                                    <div class="font-bold mb-1">DURUM: ${complaint.status.toUpperCase()}</div>
+                                    ${complaint.admin_note ? `<div class="text-sm italic"><span class="font-bold not-italic opacity-70">${label}:</span> ${complaint.admin_note}</div>` : ''}
+                                </div>
+                            `;
+                            statusAlert.classList.remove('hidden');
                         }
                     }
+                } catch (error) {
+                    console.error("Error fetching complaint details:", error);
+                    alert("Şikayet detayları yüklenemedi.");
                 }
-
-                // Update UI for Edit Mode
-                const submitBtn = document.querySelector('button[type="submit"]');
-                submitBtn.textContent = "KAYDI GÜNCELLE";
-                submitBtn.className = "bg-blue-600 text-white px-8 py-3 rounded font-bold shadow-lg hover:bg-blue-700 transition-colors";
-
-                // Show Status Alert
-                const statusAlert = document.getElementById('status-alert');
-                if (statusAlert) {
-                    let alertClass = 'bg-yellow-900/20 text-yellow-200';
-                    let icon = '⏳';
-                    let label = 'Yönetici Notu';
-
-                    if (complaint.status === 'Onaylandı') {
-                        alertClass = 'bg-green-900/20 text-green-200 border-green-700/30';
-                        icon = '✔️';
-                        label = 'Açıklama';
-                    } else if (complaint.status === 'Reddedildi') {
-                        alertClass = 'bg-red-900/20 text-red-200 border-red-700/30';
-                        icon = '❌';
-                        label = 'Red Gerekçesi';
-                    }
-
-                    statusAlert.className = `px-6 py-4 border-b border-[#1E3A5F] ${alertClass} flex items-start space-x-3`;
-                    statusAlert.innerHTML = `
-                        <div class="text-2xl">${icon}</div>
-                        <div>
-                            <div class="font-bold mb-1">DURUM: ${complaint.status.toUpperCase()}</div>
-                            ${complaint.adminNote ? `<div class="text-sm italic"><span class="font-bold not-italic opacity-70">${label}:</span> ${complaint.adminNote}</div>` : ''}
-                        </div>
-                    `;
-                    statusAlert.classList.remove('hidden');
-
-                    // Disable form if finalized
-                    if (complaint.status !== 'İnceleniyor') {
-                        Array.from(document.getElementById('complaintForm').elements).forEach(el => el.disabled = true);
-                        submitBtn.style.display = 'none';
-                    }
+            } else {
+                // New Complaint Mode
+                const savedPlate = localStorage.getItem('current_complaint_plate');
+                if (savedPlate) {
+                    plateInput.value = savedPlate;
+                } else {
+                    plateInput.value = 'BİLİNMİYOR';
                 }
             }
-        } else {
-            // New Complaint Mode
-            const savedPlate = localStorage.getItem('current_complaint_plate');
-            if (savedPlate) {
-                plateInput.value = savedPlate;
-            } else {
-                plateInput.value = 'BİLİNMİYOR';
-            }
-        }
 
-        dateInput.value = new Date().toLocaleString('tr-TR');
+            dateInput.value = new Date().toLocaleDateString('tr-TR');
 
-        // Handle Submit
-        document.getElementById('complaintForm').addEventListener('submit', (e) => {
-            e.preventDefault();
+            // Handle Submit
+            document.getElementById('complaintForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-            const description = document.getElementById('description').value;
-            const city = document.getElementById('city').value;
-            const district = document.getElementById('district').value;
-            const neighborhood = document.getElementById('neighborhood').value;
-            const detail = document.getElementById('address_detail').value;
+                // Prevent submission in view mode just in case
+                if (isViewMode) return;
 
-            // Combine for display/storage
-            const fullLocation = `${city} / ${district} / ${neighborhood} - ${detail}`;
+                const description = document.getElementById('description').value;
+                const city = document.getElementById('city').value;
+                const district = document.getElementById('district').value;
+                const neighborhood = document.getElementById('neighborhood').value;
+                const detail = document.getElementById('address_detail').value;
 
-            const complaintData = {
-                plate: plateInput.value,
-                description,
-                location: fullLocation,
-                city,
-                district,
-                neighborhood,
-                address_detail: detail,
-                // Preserve date if editing, else set new
-                date: isEditMode ? window.api.getComplaint(complaintId).date : new Date().toLocaleDateString('tr-TR')
-            };
+                // Combine for display/storage
+                const fullLocation = `${city} / ${district} / ${neighborhood} - ${detail}`;
 
-            if (isEditMode) {
-                window.api.updateComplaint(complaintId, complaintData);
-                window.ui.showModal('Başarılı', 'Bildirim başarıyla güncellendi.');
-                setTimeout(() => window.location.href = 'dashboard.html', 1500);
-            } else {
-                window.api.saveComplaint(complaintData);
-                window.ui.showModal('Başarılı', 'Bildirim başarıyla oluşturuldu.');
-                localStorage.removeItem('current_complaint_plate');
-                setTimeout(() => window.location.href = 'dashboard.html', 1500);
-            }
-        });
+                const complaintData = {
+                    plate: plateInput.value,
+                    description,
+                    location: fullLocation,
+                    city,
+                    district,
+                    neighborhood,
+                    address_detail: detail,
+                    date: dateInput.value
+                };
+
+                try {
+                    await window.api.saveComplaint(complaintData);
+                    if (window.ui) window.ui.showModal('Başarılı', 'Bildirim başarıyla oluşturuldu.');
+                    else alert('Bildirim başarıyla oluşturuldu.');
+
+                    localStorage.removeItem('current_complaint_plate');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                } catch (error) {
+                    alert('Hata oluştu: ' + error.message);
+                }
+            });
+        })();
     </script>
 </body>
 
