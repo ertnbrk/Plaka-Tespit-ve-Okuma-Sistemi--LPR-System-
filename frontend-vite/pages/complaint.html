@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Şikayet Oluştur - Akıllı Şehir Plaka Sistemi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gov: {
+                            bg: '#0B2A4A',
+                            card: '#123E6B',
+                            dark: '#0A1F36',
+                            red: '#E11D2E',
+                            border: '#1E3A5F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #0B2A4A;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0A1F36;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1E3A5F;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2D5485;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-[#123E6B] border border-[#1E3A5F] rounded-lg shadow-2xl overflow-hidden mt-4 mb-4">
+
+        <div class="bg-[#0A1F36] border-b border-[#1E3A5F] px-4 md:px-6 py-4 flex justify-between items-center">
+            <h1 class="text-lg md:text-xl font-bold text-white tracking-wide">TRAFİK KURAL İHLALİ BİLDİRİMİ</h1>
+            <a href="dashboard.html"
+                class="flex items-center text-gray-400 hover:text-white transition-colors text-sm font-medium bg-[#1E3A5F]/50 px-3 py-1.5 rounded border border-transparent hover:border-gray-600">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                VAZGEÇ
+            </a>
+        </div>
+
+        <div id="status-alert" class="hidden px-4 md:px-6 py-4 border-b border-[#1E3A5F]"></div>
+
+        <form id="complaintForm" class="p-6 md:p-8 space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">TESPİT EDİLEN PLAKA</label>
+                    <div class="relative group">
+                        <div
+                            class="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg blur opacity-30 group-hover:opacity-75 transition duration-1000 group-hover:duration-200">
+                        </div>
+                        <input type="text" id="plate" readonly
+                            class="relative w-full bg-black border border-gray-700 rounded-lg p-4 text-2xl font-mono font-bold text-green-400 tracking-widest text-center shadow-[0_0_15px_rgba(74,222,128,0.1)] focus:shadow-[0_0_20px_rgba(74,222,128,0.3)] transition-all"
+                            value="">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">OLAY TARİHİ</label>
+                    <input type="text" id="date" readonly
+                        class="w-full bg-[#0A1F36] border border-[#1E3A5F] rounded p-4 text-white" value="">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">MÜFETTİŞ / GÖREVLİ NOTU (ZORUNLU)</label>
+                <textarea id="description" rows="4" required
+                    class="w-full bg-[#0A1F36] border border-[#1E3A5F] rounded p-3 text-white focus:outline-none focus:border-red-500 placeholder-gray-500"
+                    placeholder="İhlal detaylarını giriniz... (Örn: Hatalı park, kırmızı ışık ihlali vb.)"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">LOKASYON BİLGİLERİ</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- İL SEÇİMİ -->
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">İl</label>
+                        <select id="city" required
+                            class="w-full bg-[#0A1F36] border border-[#1E3A5F] rounded p-3 text-white focus:outline-none focus:border-red-500 appearance-none">
+                            <option value="">Seçiniz</option>
+                            <!-- JS ile doldurulacak -->
+                        </select>
+                    </div>
+
+                    <!-- İLÇE SEÇİMİ -->
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">İlçe</label>
+                        <select id="district" required disabled
+                            class="w-full bg-[#0A1F36] border border-[#1E3A5F] rounded p-3 text-white focus:outline-none focus:border-red-500 appearance-none opacity-50 cursor-not-allowed">
+                            <option value="">Önce İl Seçiniz</option>
+                        </select>
+                    </div>
+
+                    <!-- MAHALLE SEÇİMİ (Manuel Giriş) -->
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Mahalle</label>
+                        <input type="text" id="neighborhood" required
+                            class="w-full bg-[#0A1F36] border border-[#1E3A5F] rounded p-3 text-white focus:outline-none focus:border-red-500"
+                            placeholder="Mahalle Giriniz">
+                    </div>
+                </div>
+
+                <!-- DETAYLI ADRES -->
+                <div class="mt-4">
+                    <label class="block text-xs text-gray-400 mb-1">Açık Adres Detayı</label>
+                    <div class="flex items-center">
+                        <span
+                            class="inline-flex items-center justify-center p-3 rounded-l border border-r-0 border-[#1E3A5F] bg-[#0A1F36] text-gray-400 h-[50px]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </span>
+                        <input type="text" id="address_detail" required
+                            class="w-full bg-[#0A1F36] border border-[#1E3A5F] rounded-r p-3 text-white focus:outline-none focus:border-red-500 h-[50px]"
+                            placeholder="Cadde, Sokak, Kapı No, Posta Kodu vb.">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="pt-4 flex items-center justify-between border-t border-[#1E3A5F] mt-4">
+                <div class="text-xs text-gray-500 w-1/2">
+                    * Bu bildirim resmi kayıt niteliğinde olup, yanlış beyanlar yasal sorumluluk doğurur.
+                </div>
+                <button type="submit"
+                    class="bg-[#E11D2E] text-white px-8 py-3 rounded font-bold shadow-lg hover:bg-red-700 transition-colors">
+                    KAYDI ONAYLA VE GÖNDER
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <script src="../js/location-data.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/ui.js"></script>
+    <script>
+        window.ui = new UIController();
+    </script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Init Location Data
+        const locationData = window.turkeyLocationData || [];
+        const citySelect = document.getElementById('city');
+        const districtSelect = document.getElementById('district');
+        // Neighborhood is text input now
+
+        // Populate Cities
+        citySelect.innerHTML = '<option value="">İl Seçiniz</option>';
+
+        locationData.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.name;
+            option.textContent = `${city.id} - ${city.name}`;
+            citySelect.appendChild(option);
+        });
+
+        // City Change Event
+        citySelect.addEventListener('change', (e) => {
+            const selectedCityName = e.target.value;
+
+            // Reset District
+            districtSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+            districtSelect.disabled = true;
+            districtSelect.classList.add('opacity-50', 'cursor-not-allowed');
+
+            if (selectedCityName) {
+                const city = locationData.find(c => c.name === selectedCityName);
+                if (city) {
+                    // Fix: Districts are strings in the JSON, not objects
+                    city.districts.forEach(districtName => {
+                        const option = document.createElement('option');
+                        option.value = districtName;
+                        option.textContent = districtName;
+                        districtSelect.appendChild(option);
+                    });
+                    districtSelect.disabled = false;
+                    districtSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        });
+        // Initialize Form Data
+        const plateInput = document.getElementById('plate');
+        const dateInput = document.getElementById('date');
+
+        // Handle Edit Mode
+        const urlParams = new URLSearchParams(window.location.search);
+        const complaintId = urlParams.get('id');
+        let isEditMode = false;
+
+        if (complaintId) {
+            const complaint = window.api.getComplaint(complaintId);
+            if (complaint) {
+                isEditMode = true;
+
+                // Populate Fields
+                plateInput.value = complaint.plate;
+                document.getElementById('description').value = complaint.description || '';
+                document.getElementById('neighborhood').value = complaint.neighborhood || '';
+                document.getElementById('address_detail').value = complaint.address_detail || '';
+
+                // Restore Location State
+                if (complaint.city) {
+                    citySelect.value = complaint.city;
+                    // Trigger district load manually
+                    const city = locationData.find(c => c.name === complaint.city);
+                    if (city) {
+                        districtSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+                        city.districts.forEach(districtName => {
+                            const option = document.createElement('option');
+                            option.value = districtName;
+                            option.textContent = districtName;
+                            districtSelect.appendChild(option);
+                        });
+                        districtSelect.disabled = false;
+                        districtSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                        if (complaint.district) {
+                            districtSelect.value = complaint.district;
+                        }
+                    }
+                }
+
+                // Update UI for Edit Mode
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.textContent = "KAYDI GÜNCELLE";
+                submitBtn.className = "bg-blue-600 text-white px-8 py-3 rounded font-bold shadow-lg hover:bg-blue-700 transition-colors";
+
+                // Show Status Alert
+                const statusAlert = document.getElementById('status-alert');
+                if (statusAlert) {
+                    let alertClass = 'bg-yellow-900/20 text-yellow-200';
+                    let icon = '⏳';
+                    let label = 'Yönetici Notu';
+
+                    if (complaint.status === 'Onaylandı') {
+                        alertClass = 'bg-green-900/20 text-green-200 border-green-700/30';
+                        icon = '✔️';
+                        label = 'Açıklama';
+                    } else if (complaint.status === 'Reddedildi') {
+                        alertClass = 'bg-red-900/20 text-red-200 border-red-700/30';
+                        icon = '❌';
+                        label = 'Red Gerekçesi';
+                    }
+
+                    statusAlert.className = `px-6 py-4 border-b border-[#1E3A5F] ${alertClass} flex items-start space-x-3`;
+                    statusAlert.innerHTML = `
+                        <div class="text-2xl">${icon}</div>
+                        <div>
+                            <div class="font-bold mb-1">DURUM: ${complaint.status.toUpperCase()}</div>
+                            ${complaint.adminNote ? `<div class="text-sm italic"><span class="font-bold not-italic opacity-70">${label}:</span> ${complaint.adminNote}</div>` : ''}
+                        </div>
+                    `;
+                    statusAlert.classList.remove('hidden');
+
+                    // Disable form if finalized
+                    if (complaint.status !== 'İnceleniyor') {
+                        Array.from(document.getElementById('complaintForm').elements).forEach(el => el.disabled = true);
+                        submitBtn.style.display = 'none';
+                    }
+                }
+            }
+        } else {
+            // New Complaint Mode
+            const savedPlate = localStorage.getItem('current_complaint_plate');
+            if (savedPlate) {
+                plateInput.value = savedPlate;
+            } else {
+                plateInput.value = 'BİLİNMİYOR';
+            }
+        }
+
+        dateInput.value = new Date().toLocaleString('tr-TR');
+
+        // Handle Submit
+        document.getElementById('complaintForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const description = document.getElementById('description').value;
+            const city = document.getElementById('city').value;
+            const district = document.getElementById('district').value;
+            const neighborhood = document.getElementById('neighborhood').value;
+            const detail = document.getElementById('address_detail').value;
+
+            // Combine for display/storage
+            const fullLocation = `${city} / ${district} / ${neighborhood} - ${detail}`;
+
+            const complaintData = {
+                plate: plateInput.value,
+                description,
+                location: fullLocation,
+                city,
+                district,
+                neighborhood,
+                address_detail: detail,
+                // Preserve date if editing, else set new
+                date: isEditMode ? window.api.getComplaint(complaintId).date : new Date().toLocaleDateString('tr-TR')
+            };
+
+            if (isEditMode) {
+                window.api.updateComplaint(complaintId, complaintData);
+                window.ui.showModal('Başarılı', 'Bildirim başarıyla güncellendi.');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            } else {
+                window.api.saveComplaint(complaintData);
+                window.ui.showModal('Başarılı', 'Bildirim başarıyla oluşturuldu.');
+                localStorage.removeItem('current_complaint_plate');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            }
+        });
+    </script>
+</body>
+
+</html>

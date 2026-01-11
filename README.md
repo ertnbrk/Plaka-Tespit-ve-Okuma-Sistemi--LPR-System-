@@ -2,7 +2,11 @@
 
 Yapay zeka destekli, yüksek performanslı (**%98+ doğruluk**) otomatik plaka tanıma ve araç bilgi sorgulama sistemi.
 
-![Project Banner](https://via.placeholder.com/1200x400?text=AI+License+Plate+Recognition+System)
+
+
+![Recording2026-01-08211408-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ca3483b2-9cff-4ce2-a34c-30b1f037e288)
+
+
 
 ## 🌟 Proje Hakkında
 
@@ -25,6 +29,9 @@ Proje, **YOLOv8 Large** modeli kullanılarak eğitilmiştir. Özel ve Kaggle ver
 | **mAP@50** | **%98.46** | Modelin plaka tespit kesinliği |
 | **mAP@50-95** | **%72.00** | Kutu hassasiyeti (Perfect bounding box) |
 | **Recall** | **%96.73** | Plakaları gözden kaçırmama oranı |
+
+<img width="2400" height="1200" alt="results" src="https://github.com/user-attachments/assets/a8bc074d-f0a4-4d41-bece-f8b426cd4e1c" />
+
 
 > **Not:** Model, karlı, çamurlu ve açılı plakalarda bile yüksek başarı göstermektedir.
 

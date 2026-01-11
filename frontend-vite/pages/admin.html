@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetici Paneli - Plaka Sistemi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gov: {
+                            bg: '#0B2A4A',
+                            card: '#123E6B',
+                            dark: '#0A1F36',
+                            red: '#E11D2E',
+                            border: '#1E3A5F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #0B2A4A;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0A1F36;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1E3A5F;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2D5485;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-gray-100">
+
+    <!-- Header -->
+    <header
+        class="bg-[#0A1F36] border-b border-[#1E3A5F] h-16 flex items-center justify-between px-4 md:px-6 z-10 shadow-md">
+        <div class="flex items-center space-x-2 md:space-x-4">
+            <div class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+                <img src="../../frontend/logo/logo.png" alt="Logo" class="w-full h-full object-contain">
+            </div>
+            <h1 class="text-lg md:text-xl font-bold text-white tracking-wide">YÖNETİM<span class="hidden md:inline">
+                    PANELİ</span></h1>
+        </div>
+        <div class="flex items-center space-x-3 md:space-x-6">
+            <div class="text-right hidden md:block">
+                <div id="user-name-display" class="text-sm font-medium text-white">Yönetici</div>
+                <div class="text-xs text-red-400">Tam Yetkili</div>
+            </div>
+            <a href="dashboard.html"
+                class="px-2 py-1 md:px-3 md:py-1 bg-blue-900/50 hover:bg-blue-800 rounded text-xs border border-blue-800 transition-colors whitespace-nowrap">
+                Operatör<span class="hidden md:inline"> Ekranı</span>
+            </a>
+            <button onclick="localStorage.removeItem('token'); window.location.href='login.html'"
+                class="text-gray-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+        <div class="max-w-7xl mx-auto space-y-6">
+
+            <!-- DETAIL MODAL -->
+            <div id="detailModal"
+                class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4">
+                <div
+                    class="bg-[#123E6B] border border-[#1E3A5F] rounded-lg max-w-2xl w-full shadow-2xl animate-fade-in-up max-h-[90vh] overflow-y-auto">
+                    <div class="p-4 md:p-6 border-b border-[#1E3A5F] flex justify-between items-center bg-[#0A1F36]">
+                        <h3 class="text-lg md:text-xl font-bold text-white flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                                </path>
+                            </svg>
+                            Bildirim Detayı
+                        </h3>
+                        <button onclick="admin.closeModal()"
+                            class="text-gray-400 hover:text-white text-xl">&times;</button>
+                    </div>
+                    <div class="p-4 md:p-6 space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1">PLAKA</label>
+                                <div id="modal-plate"
+                                    class="text-lg font-bold font-mono tracking-wider text-white bg-[#0A1F36] p-2 rounded border border-[#1E3A5F]">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1">TARİH</label>
+                                <div id="modal-date" class="text-white p-2 border-b border-[#1E3A5F]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">KONUM</label>
+                            <div id="modal-location"
+                                class="text-white bg-[#0A1F36] p-3 rounded border border-[#1E3A5F] min-h-[50px]"></div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">AÇIKLAMA</label>
+                            <div id="modal-description"
+                                class="text-white bg-[#0A1F36] p-3 rounded border border-[#1E3A5F] min-h-[80px]"></div>
+                        </div>
+
+                        <!-- Admin Note Input -->
+                        <div>
+                            <label class="text-xs text-yellow-500 font-bold block mb-1">YÖNETİCİ NOTU / KARAR
+                                GEREKÇESİ</label>
+                            <textarea id="modal-admin-note" rows="2"
+                                class="w-full bg-[#0A1F36] border border-[#1E3A5F] rounded p-3 text-white focus:outline-none focus:border-red-500 placeholder-gray-600 text-sm"
+                                placeholder="Onay veya ret sebebini buraya yazınız..."></textarea>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t border-[#1E3A5F] mt-4">
+                            <div id="modal-status-badge"></div>
+                            <div id="modal-actions" class="space-x-2">
+                                <!-- Dynamic Buttons -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-[#123E6B] border border-[#1E3A5F] p-4 rounded-lg">
+                    <div class="text-gray-400 text-xs uppercase mb-1">Toplam Bildirim</div>
+                    <div id="stat-total" class="text-2xl font-bold">-</div>
+                </div>
+                <div class="bg-[#123E6B] border border-[#1E3A5F] p-4 rounded-lg">
+                    <div class="text-gray-400 text-xs uppercase mb-1">Bekleyen İşlem</div>
+                    <div id="stat-pending" class="text-2xl font-bold text-yellow-500">-</div>
+                </div>
+                <div class="bg-[#123E6B] border border-[#1E3A5F] p-4 rounded-lg">
+                    <div class="text-gray-400 text-xs uppercase mb-1">Onaylanan</div>
+                    <div id="stat-approved" class="text-2xl font-bold text-green-500">-</div>
+                </div>
+                <div class="bg-[#123E6B] border border-[#1E3A5F] p-4 rounded-lg">
+                    <div class="text-gray-400 text-xs uppercase mb-1">Reddedilen</div>
+                    <div id="stat-rejected" class="text-2xl font-bold text-red-500">-</div>
+                </div>
+            </div>
+
+            <!-- Complaint List -->
+            <div class="bg-[#123E6B] border border-[#1E3A5F] rounded-lg shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-[#1E3A5F] flex justify-between items-center">
+                    <h2 class="text-lg font-bold">Bildirim Havuzu & Denetim</h2>
+                    <div class="flex space-x-2">
+                        <input type="text" id="searchPlate" placeholder="Plaka Ara..."
+                            class="bg-[#0A1F36] border border-[#1E3A5F] rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-[#0A1F36] text-xs text-gray-400 uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Tarih</th>
+                                <th class="px-6 py-3">Plaka</th>
+                                <th class="px-6 py-3">Konum</th>
+                                <th class="px-6 py-3">Açıklama</th>
+                                <th class="px-6 py-3">Durum</th>
+                                <th class="px-6 py-3 text-right">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="divide-y divide-[#1E3A5F] text-sm">
+                            <!-- Rows -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination / Info -->
+                <div class="bg-[#0A1F36] px-6 py-3 text-xs text-gray-500 flex justify-between items-center">
+                    <span id="showing-info">Gösteriliyor...</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center text-xs text-gray-600 mt-8 pb-4">
+                YÖNETİM PANELİ SÜRÜM V2.0.4 - GİZLİ VE ÖZEL BİLGİ İÇERİR
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/api.js"></script>
+    <script src="../js/ui.js"></script>
+    <script>
+        window.ui = new UIController();
+    </script>
+    <script src="../js/admin.js"></script>
+</body>
+
+</html>
