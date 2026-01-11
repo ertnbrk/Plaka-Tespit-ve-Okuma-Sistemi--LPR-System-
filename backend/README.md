@@ -1,65 +1,125 @@
-# Backend - License Plate Recognition & Complaint System
+# Akıllı Şehir Plaka Tanıma Sistemi (LPR System)
 
-This directory contains the backend API for the LPR application. It detects license plates from images/videos and manages user complaints.
+Bu proje, görüntü ve videolardan otomatik plaka tanıma (ALPR), şikayet yönetimi ve admin paneli içeren kapsamlı bir web uygulamasıdır.
 
-## Tech Stack
-- **FastAPI**: Web framework
-- **SQLAlchemy + SQLite**: Database
-- **YOLOv8 + EasyOCR**: Inference Pipeline
-- **JWT**: Authentication
-- **SMTP**: Email notifications
+## 🚀 Proje Hakkında
+Sistem, kullanıcıların trafik ihlallerini (hatalı park, kırmızı ışık vb.) görsel veya video ile bildirmelerine olanak tanır. Yüklenen medyalar YOLOv8 ve EasyOCR kullanılarak analiz edilir ve plakalar otomatik olarak tespit edilir. Yetkililer (Admin/Müfettiş) bu bildirimleri inceleyip onaylayabilir veya reddedebilir.
 
-## Setup
+### Ana Özellikler
+- **Otomatik Plaka Tanıma (LPR)**: YOLOv8 ve EasyOCR ile yüksek doğruluklu tespit.
+- **Medya Analizi**: Hem resim hem de video dosyalarını işleyebilir.
+- **Kullanıcı Yönetimi**: Müfettiş/Vatandaş rolleri, kayıt ve giriş (JWT Auth).
+- **Şikayet Yönetimi**: Bildirim oluşturma, durumu takip etme.
+- **Admin Paneli**: 
+  - İstatistiksel özet (Toplam, Bekleyen, Onaylanan).
+  - Gelişmiş filtreleme ve arama.
+  - Kullanıcı ve şikayet detayı inceleme.
+- **Modern Arayüz**: Vite + TailwindCSS ile duyarlı ve şık tasarım.
 
-1. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🛠 Teknoloji Yığını
 
-2. **Environment Variables**:
-   Copy `.env.example` to `.env` (or set these variables in your environment):
-   ```bash
-   # Windows (Powershell)
-   $env:JWT_SECRET="mysecret"
-   $env:SMTP_USER="myemail@gmail.com"
-   ...
-   ```
-   Or simply create a defined `.env` file if you use a loader (not strictly enforced by code, but recommended).
-   
-   **Note**: To use email sending with Gmail, getting an **App Password** from Google Account settings is required.
+### Backend
+- **Dil**: Python 3.10+
+- **Framework**: FastAPI
+- **Veritabanı**: PostgreSQL (Dockerized)
+- **AI/ML**: YOLOv8, EasyOCR, OpenCV
+- **Araçlar**: Pydantic, SQLAlchemy, Uvicorn, Bcrypt
 
-3. **Database**:
-   The application uses SQLite (`app.db`) by default. The database file and tables are created automatically on the first run.
+### Frontend
+- **Framework**: Vite (Vanilla JS)
+- **Stil**: TailwindCSS
+- **Özellikler**: SPA benzeri yapı, Asenkron API çağrıları
 
-## Running the Server
+## ⚙️ Kurulum ve Çalıştırma
 
-```bash
+### Gereksinimler
+- Docker & Docker Compose (Veritabanı için)
+- Python 3.10+
+- Node.js & npm (Frontend için)
+
+### Adım 1: Veritabanını Başlatma
+Veritabanı Docker üzerinde çalışır. Backend klasöründeyken:
+```powershell
+# Backend klasörüne git
+cd backend
+
+# Veritabanını başlat (Arka planda)
+docker-compose up -d
+```
+
+### Adım 2: Backend Kurulumu
+```powershell
+# Sanal ortam oluştur (Opsiyonel ama önerilir)
+python -m venv venv
+.\venv\Scripts\activate
+
+# Bağımlılıkları yükle
+pip install -r requirements.txt
+
+# .env dosyasını oluştur
+cp .env.example .env
+# .env dosyasını kendi ayarlarınızla düzenleyin (DB URL vb. varsayılanlar genelde yeterlidir)
+```
+
+### Adım 3: Uygulamayı Başlatma (Kolay Yol)
+Hazırlanan PowerShell betiği veritabanını sıfırlar, örnek verileri ekler ve sunucuyu başlatır.
+```powershell
+./run_local.ps1
+```
+*Bu komut önce `seed_db.py` ile veritabanını temizleyip örnek verilerle (kullanıcılar, şikayetler) doldurur, ardından sunucuyu başlatır.*
+
+Manuel başlatmak isterseniz:
+```powershell
 uvicorn main:app --reload
 ```
-The API will be available at `http://localhost:8000`.
-Swagger UI documentation: `http://localhost:8000/docs`.
 
-## New Features (Auth & Complaints)
+Backend şu adreste çalışacaktır: `http://localhost:8000`  
+API Dokümantasyonu (Swagger): `http://127.0.0.1:8000/docs`
 
-### Authentication
-- `POST /auth/register`: Create a new user.
-- `POST /auth/login`: Get a JWT access token.
-- `GET /auth/me`: user profile (Requires Bearer token).
+### Adım 4: Frontend Kurulumu
+```powershell
+# Frontend klasörüne git
+cd ../frontend-vite
 
-### Complaints
-- `POST /complaints`: Submit a complaint (Requires Auth). Auto-sends email.
-- `GET /complaints/my`: List your complaints.
+# Bağımlılıkları yükle
+npm install
 
-### Admin
-- `GET /admin/users`: List all system users.
-- `GET /admin/complaints`: Filter and search all complaints.
-
-## Creating an Admin User
-
-To access `/admin` endpoints, you need a user with `is_admin=True`.
-Run the helper script:
-
-```bash
-python create_admin.py
+# Geliştirme sunucusunu başlat
+npm run dev
 ```
-Follow the prompts to create a new admin or promote an existing user.
+Frontend genellikle `http://localhost:5173` adresinde açılacaktır.
+
+## 🧪 Test Hesapları (Seed Data)
+
+`run_local.ps1` veya `seed_db.py` çalıştırıldığında aşağıdaki hesaplar oluşturulur:
+
+| Rol | Email | Şifre |
+|---|---|---|
+| **Admin** | `admin@plaka.gov.tr` | `admin123` |
+| **Müfettiş** | `demo@plaka.gov.tr` | `demo123` |
+| **Vatandaş** | `user1@gmail.com` | `123123` |
+
+## 📂 Proje Yapısı
+
+```
+Finalized_Project/
+├── backend/                # FastAPI Sunucusu
+│   ├── app/
+│   │   ├── api/            # Route handler'lar
+│   │   ├── core/           # Ayarlar ve Güvenlik
+│   │   ├── db/             # Veritabanı modelleri
+│   │   ├── services/       # İş mantığı (LPR, Email)
+│   ├── models/             # YOLO Modelleri
+│   ├── run_local.ps1       # Başlatma betiği
+│   └── seed_db.py          # Veritabanı tohumlama
+│
+├── frontend-vite/          # Vite Frontend Projesi
+│   ├── js/                 # API ve Controller mantığı
+│   ├── pages/              # HTML Sayfaları
+│   ├── public/             # Görseller
+│   └── index.html          # Giriş noktası
+```
+
+## 📝 Notlar
+- **E-posta Gönderimi**: SMTP ayarları `.env` dosyasında yapılmazsa e-posta gönderimi simüle edilir (loglara yazılır).
+- **Görüntü İşleme**: İlk çalıştırmada YOLO modelleri indirilebilir, bu biraz zaman alabilir.
