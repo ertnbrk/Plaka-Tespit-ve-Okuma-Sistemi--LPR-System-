@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python init_db.py:*)",
+      "Bash(python create_admin.py:*)",
+      "Bash(lsof:*)",
+      "Bash(python -m uvicorn:*)",
+      "Bash(curl:*)",
+      "Bash(python test_api.py:*)",
+      "Bash(python verify_db.py:*)",
+      "Bash(python migrate_db.py:*)",
+      "Bash(python test_frontend_api.py:*)",
+      "Bash(chmod:*)",
+      "Bash(./get_tokens.sh:*)",
+      "Bash(python check_schema.py:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJvZmZpY2VyQGV4YW1wbGUuY29tIiwiZXhwIjoxNzY4MTU0MTA1fQ.zIBZanlpcQmiivvrzBDfaSbiNuRMjyJ5lyH8T0mv0M8\")",
+      "Bash(python3:*)"
+    ]
+  }
+}

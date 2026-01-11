@@ -1,0 +1,291 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+app.db
+*.log
+
+# Docker volumes
+postgres_data/
+postgres_data_local/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.~*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Model files (large ML models)
+*.pt
+*.pth
+*.onnx
+*.h5
+*.pb
+best_merged_large.pt
+best.pt
+models/
+
+# Output files from testing/debugging
+*_output.txt
+*_result.txt
+*_debug*.txt
+db_test_output.txt
+debug_result.txt
+dns_debug_out.txt
+dns_debug_result_utf8.txt
+
+# Temporary task output files
+/tmp/
+.tmp/
+
+# Backup files
+*.bak
+*.backup
+*_backup.*
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Node modules (if any frontend tools used)
+node_modules/
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+
+# Secrets and credentials
+secrets.json
+credentials.json
+service-account.json
+
+# Media uploads (if stored locally)
+uploads/
+media/
+static/uploads/
+
+# Cache directories
+.cache/
+__pycache__/
+
+# Session files
+.session/
+sessions/
+
+# Editor backup files
+*~
+*.swp
+*.swo
+.*.sw?
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Documentation build
+docs/_build/
+site/
+
+# Professional IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Python cache
+*.pyc
+__pycache__/
+
+# Test coverage
+.coverage
+.coverage.*
+htmlcov/
+
+# Translations
+*.mo
+*.pot
+
+# Flask cache
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+target/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Large video/image test files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+*.wmv
+test_videos/
+test_images/
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon

@@ -4,3 +4,9 @@ opencv-python-headless
 fastapi
 python-multipart
 uvicorn
+sqlalchemy
+psycopg2-binary
+passlib[bcrypt]
+python-jose[cryptography]
+pydantic[email]
+python-dotenv

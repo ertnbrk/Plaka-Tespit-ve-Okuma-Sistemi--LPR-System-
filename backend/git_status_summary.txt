@@ -1,0 +1,72 @@
+=== FILES TO COMMIT ===
+
+Application Code:
+✅ main.py
+✅ requirements.txt
+✅ app/ (entire directory with all Python code)
+✅ inference.py
+✅ video_inference.py
+✅ cities.py
+✅ mock_db.py
+
+Scripts:
+✅ create_admin.py
+✅ init_db.py
+✅ migrate_db.py
+✅ verify_db.py
+✅ check_schema.py
+✅ test_frontend_api.py
+✅ test_api_curl.sh
+✅ get_tokens_simple.sh
+✅ git_cleanup.sh
+
+Configuration:
+✅ .env.example (template only, no real secrets)
+✅ .gitignore
+✅ docker-compose.yml
+
+Documentation:
+✅ README.md
+✅ API_DOCS.md
+✅ CURL_COMMANDS.md
+✅ FRONTEND_INTEGRATION_COMPLETE.md
+✅ API_CHANGES_SUMMARY.md
+✅ DATABASE_SETUP_COMPLETE.md
+✅ FILES_SUMMARY.md
+✅ GIT_IGNORE_GUIDE.md
+✅ HOW_TO_USE_LOCAL_DB.md
+✅ README_CURL_TESTING.md
+✅ ISSUE_RESOLVED.md
+
+=== FILES TO IGNORE (NOT COMMIT) ===
+
+Secrets:
+❌ .env (contains real passwords and secrets!)
+
+Python Cache:
+❌ __pycache__/ (all directories)
+❌ *.pyc, *.pyo files
+
+Debug/Test Output:
+❌ db_test_output.txt
+❌ debug_result.txt
+❌ dns_debug_out.txt
+❌ dns_debug_result_utf8.txt
+
+Database:
+❌ *.db, *.sqlite files
+❌ postgres_data/
+
+Large Model Files:
+❌ *.pt (if they exist)
+❌ models/ directory
+
+Temporary:
+❌ *.log files
+❌ *.tmp files
+❌ /tmp/ directory
+
+IDE:
+❌ .vscode/
+❌ .idea/
+

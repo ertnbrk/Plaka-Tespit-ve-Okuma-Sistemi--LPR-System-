@@ -2,10 +2,25 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 import uvicorn
-from inference import LicensePlateDetector
 import io
+import tempfile
+import os
+import time
+from pydantic import BaseModel
 
-app = FastAPI()
+# Import existing logic
+from inference import LicensePlateDetector
+from video_inference import VideoLicensePlatePipeline
+import mock_db
+
+# New imports
+from app.api.routers import auth, complaints, admin
+from app.db.database import engine, Base
+
+# Create tables if not exist
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="LPR Backend System")
 
 # Enable CORS for frontend
 app.add_middleware(
@@ -16,9 +31,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from video_inference import VideoLicensePlatePipeline
-import tempfile
-import os
+# Mount new routers
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(complaints.router, prefix="/complaints", tags=["complaints"])
+app.include_router(admin.router, prefix="/admin", tags=["admin"])
 
 # Initialize detector
 # Note: Path is relative to where main.py is run. 
@@ -54,10 +70,6 @@ async def predict_video(file: UploadFile = File(...)):
         # Cleanup
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
-
-from pydantic import BaseModel
-import time
-import mock_db
 
 class VehicleQuery(BaseModel):
     plate: str
