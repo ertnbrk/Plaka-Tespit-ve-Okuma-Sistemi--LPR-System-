@@ -1,8 +1,12 @@
 # 🚗 Plaka Tespit ve Okuma Sistemi (LPR System)
 
-Yapay zeka destekli, yüksek performanslı otomatik plaka tanıma, ihlal tespiti ve şikayet yönetim sistemi.
+Yapay zeka destekli, yüksek performanslı (**%98+ doğruluk**) otomatik plaka tanıma ve araç bilgi sorgulama sistemi.
 
-![System Preview](https://github.com/user-attachments/assets/ca3483b2-9cff-4ce2-a34c-30b1f037e288)
+
+
+![Recording2026-01-08211408-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ca3483b2-9cff-4ce2-a34c-30b1f037e288)
+
+
 
 ## 🌟 Proje Hakkında
 
