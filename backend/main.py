@@ -8,24 +8,24 @@ import os
 import time
 from pydantic import BaseModel
 
-# Import existing logic
+# importing old stuff
 from inference import LicensePlateDetector
 from video_inference import VideoLicensePlatePipeline
 import mock_db
 
-# New imports
+# new things here
 from app.api.routers import auth, complaints, admin
 from app.db.database import engine, Base
 
-# Create tables if not exist
+# create tables or crash
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="LPR Backend System")
 
-# Enable CORS for frontend
+# opening cors for frontend guys
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],  # create tables or crash
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,7 +37,7 @@ app.include_router(complaints.router, prefix="/complaints", tags=["complaints"])
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
 
 # Initialize detector
-# Note: Path is relative to where main.py is run. 
+# this path is relative to where main.py is run.
 # Assuming running from web_app/backend, model is in ../models/best.pt
 detector = LicensePlateDetector(model_path="../models/best_merged_large.pt")
 video_pipeline = VideoLicensePlatePipeline(model_path="../models/best_merged_large.pt")
@@ -48,13 +48,14 @@ async def predict(file: UploadFile = File(...)):
     
     try:
         result = detector.predict(contents)
+        # let's go video process
         return result
     except Exception as e:
         return {"error": str(e)}
 
 @app.post("/predict_video")
 async def predict_video(file: UploadFile = File(...)):
-    # Save uploaded video to temp file
+    # save video to temp (ram is expensive)
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
         content = await file.read()
         tmp.write(content)
@@ -67,7 +68,7 @@ async def predict_video(file: UploadFile = File(...)):
     except Exception as e:
         return {"error": str(e)}
     finally:
-        # Cleanup
+        # clean up mess
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
 
@@ -81,7 +82,7 @@ async def query_vehicle(query: VehicleQuery):
     # Simulate realistic service delay
     time.sleep(1.2)
     
-    # Query Mock DB
+    # asking fake db
     info = mock_db.get_vehicle_info(query.plate)
     
     if info:

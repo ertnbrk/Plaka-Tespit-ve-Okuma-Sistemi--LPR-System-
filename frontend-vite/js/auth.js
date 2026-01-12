@@ -1,4 +1,5 @@
-// Removed import, relying on global window.api
+// deleted import, using global api
+
 
 class AuthController {
     constructor() {
@@ -17,13 +18,15 @@ class AuthController {
             registerForm.addEventListener('submit', (e) => this.handleRegister(e));
         }
 
-        // Check auth status on protected pages
+        // checking if logged in
+
         if (!window.location.pathname.includes('login.html') &&
             !window.location.pathname.includes('register.html')) {
             this.checkAuth();
         }
 
-        // Logout button
+        // logout logic
+
         const logoutBtn = document.getElementById('btn-logout');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', (e) => {
@@ -80,17 +83,20 @@ class AuthController {
         if (submitBtn) submitBtn.disabled = true;
 
         try {
-            // 1. Register
+            // 1. registering user
+
             console.log("[Auth] Calling register API...");
             const regResponse = await window.api.register(name, email, password);
             console.log("[Auth] Registration response:", regResponse);
 
-            // 2. Auto Login after success
+            // 2. auto login
+
             console.log("[Auth] Auto-logging in...");
             const result = await window.api.login(email, password);
             console.log("[Auth] Auto-login successful:", result);
 
-            // 3. Redirect
+            // 3. bye bye, go to dashboard
+
             console.log("[Auth] Redirecting to dashboard...");
             window.location.href = 'dashboard.html';
 
@@ -127,7 +133,8 @@ class AuthController {
     }
 }
 
-// Initialize only if we are in browser environment
+// allow running in browser
+
 if (typeof window !== 'undefined') {
     new AuthController();
 }

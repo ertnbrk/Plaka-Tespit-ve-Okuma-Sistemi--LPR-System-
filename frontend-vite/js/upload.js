@@ -1,4 +1,4 @@
-// Removed import
+// import gone
 
 class UploadController {
     constructor(successCallback) {
@@ -17,7 +17,7 @@ class UploadController {
 
         this.currentMode = 'image'; // image or video
 
-        // Tabs
+        // Tabs for switching between image/video
         tabImage?.addEventListener('click', () => {
             this.setMode('image');
             tabImage.classList.add('bg-blue-900', 'text-white');
@@ -34,7 +34,7 @@ class UploadController {
             tabImage.classList.add('bg-gray-800', 'text-gray-400');
         });
 
-        // Drag & Drop
+        // drag & drop stuff
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('border-red-500');
@@ -67,7 +67,7 @@ class UploadController {
         this.currentMode = mode;
         const fileInput = document.getElementById('file-input');
         const warning = document.getElementById('video-warning');
-        
+
         fileInput.value = '';
         this.selectedFile = null;
         this.updateFileDisplay();
@@ -82,14 +82,14 @@ class UploadController {
     }
 
     handleFileSelect(file) {
-        // Validation based on mode
+        // checking file type (no weird files)
         if (this.currentMode === 'image' && !file.type.startsWith('image/')) {
-            if(window.ui) window.ui.showModal('Hata', 'Lütfen resim dosyası seçiniz.');
+            if (window.ui) window.ui.showModal('Hata', 'Lütfen resim dosyası seçiniz.');
             else alert('Lütfen resim dosyası seçiniz.');
             return;
         }
         if (this.currentMode === 'video' && !file.type.startsWith('video/')) {
-            if(window.ui) window.ui.showModal('Hata', 'Lütfen video dosyası seçiniz.');
+            if (window.ui) window.ui.showModal('Hata', 'Lütfen video dosyası seçiniz.');
             else alert('Lütfen video dosyası seçiniz.');
             return;
         }
@@ -101,7 +101,7 @@ class UploadController {
     updateFileDisplay() {
         const display = document.getElementById('file-name-display');
         const analyzeBtn = document.getElementById('analyze-btn');
-        
+
         if (this.selectedFile) {
             display.textContent = `Seçilen Dosya: ${this.selectedFile.name}`;
             display.classList.remove('hidden');
@@ -121,7 +121,7 @@ class UploadController {
 
         const spinner = document.getElementById('loading-spinner');
         const resultsArea = document.getElementById('results-area');
-        
+
         spinner.classList.remove('hidden');
         resultsArea.classList.add('hidden');
 
@@ -132,10 +132,10 @@ class UploadController {
             } else {
                 result = await window.api.detectVideo(this.selectedFile);
             }
-            
+
             this.successCallback(result, this.currentMode);
         } catch (error) {
-            if(window.ui) window.ui.showModal('Analiz Hatası', error.message);
+            if (window.ui) window.ui.showModal('Analiz Hatası', error.message);
             else alert('Analiz hatası: ' + error.message);
         } finally {
             spinner.classList.add('hidden');

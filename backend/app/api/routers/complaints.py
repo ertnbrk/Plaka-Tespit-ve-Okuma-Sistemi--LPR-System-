@@ -17,7 +17,7 @@ def create_complaint(
 ):
     complaint = crud.create_complaint(db=db, complaint=complaint_in, user_id=current_user.id)
 
-    # Send email in background
+    # sending email in background so it's faster
     background_tasks.add_task(
         notify_new_complaint,
         complaint_id=complaint.id,
@@ -37,9 +37,8 @@ def get_complaints(
     current_user = Depends(deps.get_current_active_user)
 ):
     """
-    Get complaints:
-    - If user is admin, returns all complaints
-    - If user is officer, returns only their complaints
+    get complaints.
+    admins see all, officers see theirs.
     """
     if current_user.role == "admin":
         complaints = crud.get_all_complaints(db, skip=skip, limit=limit)
@@ -53,7 +52,7 @@ def get_complaint(
     db: Session = Depends(deps.get_db),
     current_user = Depends(deps.get_current_active_user)
 ):
-    """Get a single complaint by ID"""
+    """get one complaint by id"""
     complaint = crud.get_complaint_by_id(db, complaint_id=complaint_id)
 
     if not complaint:
@@ -74,8 +73,8 @@ def update_complaint(
     current_user = Depends(deps.get_current_active_user)
 ):
     """
-    Update complaint status and admin note.
-    Only admins can update complaints.
+    update status.
+    admin only.
     """
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Only admins can update complaints")

@@ -1,8 +1,8 @@
-// Removed imports
+// imports gone, keeping it simple
 
 class ComplaintsController {
     constructor() {
-        // We need to wait for DOM to be ready, but this script is likely loaded at bottom body or defer
+        // waiting for dom...
         this.renderSidebar();
     }
 
@@ -13,7 +13,7 @@ class ComplaintsController {
         listContainer.innerHTML = '<div class="text-gray-400 text-sm text-center p-4">Yükleniyor...</div>';
 
         try {
-            // Use global api - await the promise
+            // calling api...
             const complaints = await window.api.getComplaints();
 
             if (!complaints || complaints.length === 0) {
@@ -22,7 +22,7 @@ class ComplaintsController {
             }
 
             listContainer.innerHTML = complaints.map(c => {
-                // Determine badge style and text
+                // setting colors and text
                 let badgeClass = 'bg-yellow-600';
                 let badgeText = c.status;
 
@@ -33,12 +33,11 @@ class ComplaintsController {
                     badgeClass = 'bg-red-600';
                     badgeText = 'Onaylanmadı';
                 } else {
-                    // Default / In Review
+                    // default: review pending
                     badgeText = 'İnceleniyor';
                 }
 
-                // Handle camelCase vs snake_case
-                // Backend sends: admin_note. Frontend previously used adminNote.
+                // backend uses snake_case sometimes, weird
                 const note = c.admin_note || c.adminNote;
                 const dateStr = c.date || new Date(c.created_at).toLocaleDateString();
 
@@ -75,11 +74,11 @@ class ComplaintsController {
     }
 
     submitComplaint(plate) {
-        // Store selected plate for complaint page
+        // saving plate to localstorage
         localStorage.setItem('current_complaint_plate', plate);
         window.location.href = 'complaint.html';
     }
 }
 
-// Make globally available
+// putting in window so everyone can see it
 window.complaints = new ComplaintsController();

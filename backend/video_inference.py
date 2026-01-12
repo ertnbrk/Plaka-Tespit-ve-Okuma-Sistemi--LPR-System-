@@ -8,32 +8,32 @@ import os
 
 class VideoLicensePlatePipeline:
     def __init__(self, model_path="../models/best_merged_large.pt"):
-        # Load YOLO model
+        # need yolo here too
         self.model = YOLO(model_path)
-        # Initialize EasyOCR
+        # easyocr again...
         self.reader = easyocr.Reader(['en'])
         
     def normalize_text(self, text):
-        """Clean and normalize OCR text."""
+        """cleaning ocr garbage"""
         text = text.upper().strip()
-        # Remove common separators
+        # removing dots and dashes
         text = re.sub(r'[\s\.\:\-\|]+', ' ', text)
-        # Fix common OCR errors (basic fallback)
-        # Note: Extensive context-aware replacement happens in categorization if needed
+        # quick fix for ocr bugs
+        # NOTE: more fixes in categorization
         return text.strip()
 
     def categorize_plate(self, text):
         """
-        Categorize plate as:
-        - TR_STANDARD: 34 ABC 123
-        - TR_SPECIAL: Diplomatic, Guest, Police
-        - FOREIGN: Others
-        Also cleans text if likely TR (strips garbage).
+        figuring out what kind of plate this is
+        - TR_STANDARD
+        - TR_SPECIAL
+        - FOREIGN
+        doing some cleaning too.
         """
         raw_text = text
         clean_text = raw_text # Keep separate if we need original
         
-        # 1. TR Prefix Check & Cleanup
+        # delete TR if exists
         is_tr_candidate = False
         
         if clean_text.startswith("TR"):
@@ -48,7 +48,7 @@ class VideoLicensePlatePipeline:
             if 1 <= int(digit_match.group(1)) <= 81:
                 is_tr_candidate = True
                 
-        # Helper inner function to check range 01-81
+        # helper: is valid city?
         def is_valid_city_code(code_str):
             try:
                 val = int(code_str)
@@ -57,7 +57,7 @@ class VideoLicensePlatePipeline:
                 return False
 
         if is_tr_candidate:
-             # Basic Correction (O->0, I->1) for first 2 chars
+             # solving O/0 confusion
             if len(matcher_text) >= 2:
                 first_two = list(matcher_text[:2])
                 if first_two[0] == 'O': first_two[0] = '0'
@@ -68,37 +68,37 @@ class VideoLicensePlatePipeline:
             
             compact = matcher_text.replace(" ", "")
 
-            # --- 1. TR SPECIAL CHECKS ---
+            # --- SPECIAL PLATES ---
             
-            # Diplomatic: 99 CD/CC/CG/CM 999
+            # diplomats (green ones maybe?)
             if re.match(r'^99\s?(CD|CC|CG|CM)\s?\d{1,4}.*$', compact):
                 return "Local (TR Special - Diplomatic)"
                 
-            # Guest: 99 MA/MZ 999 
+            # guest cars
             if re.match(r'^\d{2}\s?(MA|MZ)\s?[A-Z0-9]{2,6}.*$', compact):
                  if is_valid_city_code(compact[:2]):
                      return "Local (TR Special - Guest)"
             
-            # Police: 34 A 1234 (A series)
+            # police cars (A series)
             police_match = re.match(r'^(\d{2})(A{1,3})(\d{1,4}).*$', compact)
             if police_match:
                 city, lets, nums = police_match.groups()
                 if is_valid_city_code(city):
                     return "Local (TR Special - Police)"
 
-            # --- 2. TR STANDARD CHECKS ---
-            # Strict Regex: 2 digits + letters + 3-4 digits
+            # --- STANDARD PLATES ---
+            # strict rule: 2nums+letters+numbers
             tr_match = re.match(r'^(\d{2})([A-Z]{1,3})(\d{3,4}).*$', compact)
             if tr_match:
                 city, letters, numbers = tr_match.groups()
                 if is_valid_city_code(city):
                     return "Local (TR Standard)"
 
-            # If starts with valid city but didn't match formats
+            # city ok but format weird, call it 'Other'
             if len(compact) >= 2 and compact[:2].isdigit() and is_valid_city_code(compact[:2]):
                  return "Local (TR Other/Invalid)"
 
-        # --- 3. FOREIGN ---
+        # --- FOREIGN ---
         return "Foreign"
 
     def process_video(self, video_path):
@@ -106,7 +106,7 @@ class VideoLicensePlatePipeline:
         if not cap.isOpened():
             raise ValueError("Error opening video file")
 
-        # Track storage: { track_id: { 'best_score': float, 'best_frame': img_array, 'frame_idx': int } }
+        # keeping tracked cars here. saving best frame.
         tracks = {}
         
         frame_idx = 0
@@ -117,8 +117,8 @@ class VideoLicensePlatePipeline:
                 
             frame_idx += 1
             
-            # YOLO Tracking
-            # persist=True is important for tracking across frames
+            # start yolo tracking
+            # persist=True keeps IDs same
             results = self.model.track(frame, persist=True, verbose=False, tracker="botsort.yaml")
             
             for r in results:
@@ -133,11 +133,11 @@ class VideoLicensePlatePipeline:
                     x1, y1, x2, y2 = map(int, box)
                     
                     # Calculate Score: Area * Confidence
-                    # Larger, clearer plates are better for OCR
+                    # bigger plates are better for OCR
                     area = (x2 - x1) * (y2 - y1)
                     score = area * conf
                     
-                    # Crop plate
+                    # crop plate
                     plate_img = frame[y1:y2, x1:x2]
                     if plate_img.size == 0:
                         continue
@@ -153,18 +153,18 @@ class VideoLicensePlatePipeline:
         
         cap.release()
         
-        # Post-process: Run OCR on best frames
+        # done, now ocr the best frames
         final_results = []
         
         for track_id, data in tracks.items():
             img = data['best_frame']
             
-            # --- OCR Pipeline ---
-            # Preprocessing
+            # --- OCR TIME ---
+            # preprocessing stuff
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             # Resize 2x
             gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-            # Threshold
+            # make it b&w
             _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
             
             ocr_out = self.reader.readtext(thresh)
@@ -172,8 +172,7 @@ class VideoLicensePlatePipeline:
             
             normalized_text = self.normalize_text(raw_text)
             
-            # Correction logic (basic)
-            # Apply corrections used in categorization (O->0 in numbers) for the final display text
+            # basic fix logic
             parts = normalized_text.split()
             if len(parts) >= 3 and parts[0].replace('O','0').isdigit():
                  parts[0] = parts[0].replace('O','0').replace('I','1')
